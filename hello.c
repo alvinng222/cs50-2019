@@ -1,3 +1,6 @@
+// hello.c
+// Says hello to the world
+
 #include <cs50.h>
 #include <stdio.h>
 
