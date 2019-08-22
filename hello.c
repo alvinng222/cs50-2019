@@ -1,3 +1,5 @@
+// hello.c 20190822
+// Problem Set 1
 // Says hello to the world
 
 #include <cs50.h>
