@@ -1,4 +1,3 @@
-// hello.c
 // Says hello to the world
 
 #include <cs50.h>
@@ -9,4 +8,3 @@ int main(void)
     string name = get_string ("What is your name?\n");
     printf("hello, %s\n", name);
 }
-   
