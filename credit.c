@@ -21,10 +21,10 @@ int main(void)
     {
         number = get_long("Number: ");
     }
-    while (number < digit13 || number > digit16 * 10);
+    while (number > digit16 * 10);
     
     //if function Luhn valid, check type
-    if (luhn(number)==0)
+    if (luhn(number) == 0)
     {
         //Visa uses 13-digit numbers, start with 4. Or
         if (number > digit13 && number < digit13 * 10) 
@@ -36,7 +36,7 @@ int main(void)
             }
             else
             {
-            printf("INVALID\n");
+                printf("INVALID\n");
             }
         }
         //Visa uses 16-digit numbers, start with 4;
@@ -50,11 +50,11 @@ int main(void)
             }
             else if ((lastdigit > 50) && (lastdigit < 56))
             {
-                printf("MASTER\n");      
+                printf("MASTERCARD\n");      
             }
             else
             {
-            printf("INVALID\n");
+                printf("INVALID\n");
             }
         }
         //Amex uses 15-digit numbers, start with 34 or 37
@@ -63,21 +63,21 @@ int main(void)
             lastdigit = (number / (digit15 / 10));
             if (lastdigit == 37 || lastdigit == 34)
             {
-                printf("AMERICAN EXPRESS\n");      
+                printf("AMEX\n");      
             }
             else
             {
-            printf("INVALID\n");
+                printf("INVALID\n");
             }
         }
         else
         {
-        printf("INVALID\n");
+            printf("INVALID\n");
         } 
     }
     else
     {
-    printf("INVALID\n");
+        printf("INVALID\n");
     }
 }
 
@@ -113,7 +113,7 @@ int luhn(long y)
             }
             else
             {
-            checksum += digit2;         
+                checksum += digit2;         
             }
         }
         Num = Num / 10;  // next digit
