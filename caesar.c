@@ -26,6 +26,8 @@ int main(int argc, string argv[])
     {
         printf("Usage: ./caesar key\n");
     }
+
+    return 1; // exit code 1
 }
 
 // function check for NOT decinal
