@@ -18,7 +18,7 @@ int main(int argc, string argv[])
     {
         int key, jk;//init for single keyword to integer, rotate position
         int keylgth = strlen(argv[1]); //keyword length
-        char ct;                       //ciphertext char
+        char p;                        //ciphertext char
         
         //input plaintest
         string ptext = get_string("plaintext:  ");
@@ -27,21 +27,20 @@ int main(int argc, string argv[])
         //counter for plaintext,i and keyword rotation,j
         for (int i = 0, j = 0, n = strlen(ptext); i < n; i++)
         {
-            if (ptext[i] == 32)    // if space 32 skip keyword
+            //j mod key-length, key shift
+            jk = j % keylgth;
+            key = shift(argv[1][jk]);
+
+            //convert to cipher char, (p + k) % 26
+            p = ptext[i];
+            if ((p >= 'A' && p <= 'Z') || (p >= 'a' && p <= 'z'))
             {
-                printf("%c", ptext[i]);
+                printf("%c", rotate(p, key));
+                j++;     // next keyword 
             }
             else
             {
-                //j mod key-length, key shift
-                jk = j % keylgth;
-                key = shift(argv[1][jk]);
-
-                //convert to cipher char
-                ct = rotate(ptext[i], key);
-                printf("%c", ct);
-
-                j++;     // next keyword
+                printf("%c", p);
             }
         }
         printf("\n");
@@ -83,15 +82,13 @@ int shift(char c)
     {
         x = ((int) c - 97);
     }
-
     return x;
 }
 
-// function rotate, single char for a to Z will rotate with key
+// function rotate, single char for a to Z will rotate with key, c=(p+k)%26
 char rotate(char p, int k)
 {
     char c;
-
     if (p >= 'A' && p <= 'Z')
     {
         c = (((p - 65 + k) % 26) + 65);    //65 is 'A' 
@@ -109,7 +106,7 @@ char rotate(char p, int k)
 }
 
 /*
-$ ./vigenere bacon
-plaintext:  Meet me at
-ciphertext: Negh zf av
+$ ./vigenere baz
+plaintext:  hello, world!
+ciphertext: iekmo, vprke!
 */
