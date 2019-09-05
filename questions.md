@@ -51,8 +51,8 @@ to read ONE time
 
 ## What does `fseek` do?
 
-TODO
+To position indicator
 
 ## What is `SEEK_CUR`?
 
-TODO
+Current position in a file
