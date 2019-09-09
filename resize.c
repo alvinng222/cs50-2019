@@ -1,10 +1,14 @@
-//cs50-2019 pset3 resize.c
+// cs50-2019 pset3 resize.c
 // Copies a BMP file
+// To resize bmp files
+// 1. fread infile to struct xRGB
+// 2. using factor process and copy to temp file NewRGB
+// 3. fwrite all data to output file
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "bmp.h"
+#include "bmp.h" //   struct file
 
 // int main(void)
 int main(int argc, char *argv[])
@@ -16,22 +20,17 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // remember filenames
+    // remember factor and filenames
     double f = atof(argv[1]);
     char *infile = argv[2];
     char *outfile = argv[3];
 
-    // f is integer, or else return with 1
-    // if y negative integer than f = 0
+    // if y negative integer, return 1
     if (f <= 0)
     {
         printf("The resize factor, must satisfy 0 < n <= 100.\n");
-        // n, the resize factor, must be a float
-
         return 1; // kill the program *****
     }
-    //printf("f= %0.2f  ok good!\n", f);
-    //return 0; // kill the program *****
 
     // open input file
     FILE *inptr = fopen(infile, "r");
@@ -68,12 +67,12 @@ int main(int argc, char *argv[])
         return 4;
     }
 
-
-    // determine padding for scanlines
+    // determine padding for original scanlines
     int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
-    // my struct for infile RGB only
-    int xH = abs(bi.biHeight); int xW = bi.biWidth;
+    // storage for infile, only RGB, xRGB
+    int xH = abs(bi.biHeight);
+    int xW = bi.biWidth;
     RGBTRIPLE xRGB[xH][xW];
 
     // iterate over infile's scanlines
@@ -82,87 +81,69 @@ int main(int argc, char *argv[])
         // iterate over pixels in scanline
         for (int j = 0; j < bi.biWidth; j++)
         {
-            // temporary storage
+            // temporary storage to store original
             RGBTRIPLE triple;
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
 
-            // copy to struc
+            // copy to struc xRGB
             xRGB[i][j] = triple;
-
-            // write RGB triple to outfile
-            // fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);    ///  was
         }
 
-
-        // skip over padding, if any
+        // skip over padding, if any .. ?? no idea if require
         fseek(inptr, padding, SEEK_CUR);
-
-        /*/ then add it back (to demonstrate how)      was
-        for (int k = 0; k < padding; k++)
-        {
-            fputc(0x00, outptr);
-        } */
     }
 
-
-    // PROCESS
-    int nH = xH*f; //printf("nH; %i\n", nH);
-    int nW = xW*f; //printf("nW; %i\n", nW);
+    // convert height and width of image with factor, copy to new struct, NewRGB
+    int nH = xH * f;
+    int nW = xW * f;
 
     RGBTRIPLE NewRGB[nH][nW];
     for (int na = 0; na < nH; na++)
     {
         for (int nb = 0; nb < nW; nb++)
         {
-            int fna = na/f + 1/f/2; int fnb = nb/f + 1/f/2; //+ 1/f/2 is start from half way
+            int fna = (na / f) + (1 / f / 2);
+            int fnb = (nb / f) + (1 / f / 2); //+ 1/f/2 to start from half index
             NewRGB[na][nb] = xRGB[fna][fnb];
         }
     }
 
-    // new file header and info header
-    BITMAPFILEHEADER nf; nf = bf;
-    BITMAPINFOHEADER ni; ni = bi;
-    ni.biWidth = f * bi.biWidth; // nW
-    ni.biHeight = f * bi.biHeight; // nH
+    // prepare to Write all data to file
+    // new file header, info header, ni.biWidth ,ni.biHeight, biSizeImage, bfSize
+    BITMAPFILEHEADER nf;
+    nf = bf;
+    BITMAPINFOHEADER ni;
+    ni = bi;
+    ni.biWidth = f * bi.biWidth;   //= nW
+    ni.biHeight = f * bi.biHeight; //= nH
     int nipadding = (4 - (ni.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
-    int scanline =  (sizeof(RGBTRIPLE) * ni.biWidth) + nipadding;  // size of scanline
+    int scanline = (sizeof(RGBTRIPLE) * ni.biWidth) + nipadding;  // size of scanline
     ni.biSizeImage = scanline * abs(ni.biHeight);
     nf.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + ni.biSizeImage;
 
     // write outfile's BITMAPFILEHEADER
-    fwrite(&nf, sizeof(BITMAPFILEHEADER), 1, outptr);  // was
-    //printf("write: nf, sizeof BITMAPFILEHEADER: %lu | ", sizeof(BITMAPFILEHEADER) ); /// no change ****
+    fwrite(&nf, sizeof(BITMAPFILEHEADER), 1, outptr);
+
     // write outfile's BITMAPINFOHEADER
-    fwrite(&ni, sizeof(BITMAPINFOHEADER), 1, outptr);   // was
-    //printf("write: nf, sizeof BITMAPINFOHEADER: %lu\n", sizeof(BITMAPINFOHEADER) );  /// no change ****
+    fwrite(&ni, sizeof(BITMAPINFOHEADER), 1, outptr);
 
-    //printf("new width: %d | new height: %d | new biSizeImage: %d | new bfSize: %d \n",
-    //   ni.biWidth, ni.biHeight, ni.biSizeImage, nf.bfSize); // ****
-
-    ///// PRIINT //////
-    //int m = nibiWidth;
-    for (int i=0; i<nH; i++)
+    // RGB output to file
+    for (int i = 0; i < nH; i++)
     {
-        for (int j=0; j<nW; j++)
+        for (int j = 0; j < nW; j++)
         {
-            //printf("%x%x%x ", NewRGB[i][j].rgbtBlue, NewRGB[i][j].rgbtGreen, NewRGB[i][j].rgbtRed);
-            // write RGB triple to outfile
-            fwrite(&NewRGB[i][j], sizeof(RGBTRIPLE), 1, outptr);    ///  was
+            // write RGB NewRGB to outfile
+            fwrite(&NewRGB[i][j], sizeof(RGBTRIPLE), 1, outptr);
         }
 
-        // then add it back (to demonstrate how)      was
+        // add padding if necessary
         for (int k = 0; k < nipadding; k++)
         {
-           fputc(0x00, outptr);
-           //printf("p");
+            fputc(0x00, outptr);
         }
-
-
-        //printf("\n");
     }
-
 
     // close infile
     fclose(inptr);
@@ -170,18 +151,36 @@ int main(int argc, char *argv[])
     // close outfile
     fclose(outptr);
 
-    //printf("\n");   // ****
-
     // success
     return 0;
 }
 
 /*
 large.bmp
-write: nf, sizeof BITMAPFILEHEADER: 14 | write: nf, sizeof BITMAPINFOHEADER: 40
+nf, sizeof BITMAPFILEHEADER: 14 | write: nf, sizeof BITMAPINFOHEADER: 40
 old width: 12 | old height: -12 | old biSizeImage: 432 | old bfSize: 486
-factor :  1.00
 
-small.bmp
-old width: 3 | old height: -3 | old biSizeImage: 36 | old bfSize: 90
+~/pset3/resize/more/ $ ./resize
+Usage: ./resize f infile outfile
+~/pset3/resize/more/ $ style50 ./resize.c
+Results generated by style50 v2.7.3
+Looks good
+~/pset3/resize/more/ $ check50 cs50/problems/2019/x/resize/more
+... Waiting for results...........................
+Results for cs50/problems/2019/x/resize/more generated by check50 v3.0.8
+:) resize.c and bmp.h exist.
+:) resize.c compiles.
+:) doesn't resize small.bmp when n is 1
+:) resizes small.bmp correctly when n is 2
+:) resizes small.bmp correctly when n is 3
+:) resizes small.bmp correctly when n is 4
+:) resizes small.bmp correctly when n is 5
+:) resizes large.bmp correctly when n is 2
+:) resizes smiley.bmp correctly when n is 2
+:) resizes smiley.bmp correctly when n is 3
+:) resizes 6x6-pixel BMP to 3x3 correctly when f is 0.5
+:) resizes 12x12-pixel BMP to 6x6 correctly when f is 0.5
+:) resizes 18x18-pixel BMP to 9x9 correctly when f is 0.5
+To see the results in your browser go to https://submit.cs50.io/check50/4f3b51fad2bcc0bf35f36aa377d78b84ba009d6b
+~/pset3/resize/more/ $
 */
