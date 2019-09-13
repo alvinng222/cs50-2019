@@ -77,8 +77,10 @@ int main(int argc, char *argv[])
             fn++;                               // next filename
         }
 
+        if ((buffer[0] == 0) && (fn > 48)) return 0;
+
         // just continue to write, regardless of front non-image data
-        if (buffer[0] != 0)                     // skip buffer if 0x0
+        //if (buffer[0] != 0)                     // skip buffer if 0x0
         {
             fwrite(buffer, 128, 1, outptr);
         }
