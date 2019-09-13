@@ -77,12 +77,6 @@ int main(int argc, char *argv[])
             fn++;                               // next filename
         }
 
-        if ((buffer[0] == 0) && (fn == 49))
-        {
-            fclose(outptr);     // close outfile
-            return 0;
-        }
-
         // just continue to write, regardless of front non-image data
         //if (buffer[0] != 0)                     // skip buffer if 0x0
         {
