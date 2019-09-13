@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
     }
 
     // allocate memory
-    int buffer[128];
+    //int buffer[128];
+    int *buffer = malloc((128) * sizeof(int));
 
     int c = 0; // . TEST
 
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
 
     // Free memory
     free(outfile);
-    //free(buffer);
+    free(buffer);
 
     // success
     return 0;
