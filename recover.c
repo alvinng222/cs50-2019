@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
         return 3;
     }
 
-    buffer[0] = 0;
+    buffer[0] = 0x0;
     do
     {
         if ((jpegHdr(buffer[0]) == 0))
@@ -114,12 +114,9 @@ bool jpegHdr(int byte4)
 }
 
 /* $ rm -f *.jpg
-$ valgrind ./recover card.raw
+$ valgrind ./recover card.raw --leak-check=full
 $ echo $?
 0
 ~/work3/ $ style50 recover.c
 ~/work3/ $ check50 cs50/problems/2019/x/recover
-...
-:( recovers 049.jpg correctly
-    recovered image does not match .
 $ submit50 cs50/problems/2019/x/recover */
