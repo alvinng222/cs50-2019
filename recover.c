@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
         return 3;
     }
 
-    buffer[0] = 0x0;
-    do
+    fread(buffer, 128, 1, inptr); // read the first block of file
+    while (feof(inptr) != 1)
     {
         if ((jpegHdr(buffer[0]) == 0))
         {
@@ -83,10 +83,9 @@ int main(int argc, char *argv[])
         {
             fwrite(buffer, 128, 1, outptr);
         }
-        
-        fread(buffer, 128, 1, inptr); // read the first block of file
+
+        fread(buffer, 128, 1, inptr); // read the subsequent blocks
     }
-    while (feof(inptr) != 1);
 
     fclose(outptr);     // close outfile
     fclose(inptr);      // close infile
@@ -114,9 +113,14 @@ bool jpegHdr(int byte4)
 }
 
 /* $ rm -f *.jpg
-$ valgrind ./recover card.raw --leak-check=full
+$ valgrind ./recover card.raw
+==3887== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 $ echo $?
 0
 ~/work3/ $ style50 recover.c
 ~/work3/ $ check50 cs50/problems/2019/x/recover
+...
+:( recovers 049.jpg correctly
+    recovered image does not match .
 $ submit50 cs50/problems/2019/x/recover */
+
