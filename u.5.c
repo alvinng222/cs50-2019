@@ -1,10 +1,4 @@
-/* status: add unload free root
-==4089==
-==4089== 224 bytes in 1 blocks are still reachable in loss record 2 of 2
-==4089==    at 0x4C2FB0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==4089==    by 0x422500: load (u.c:41)
-==4089==    by 0x426076: main (u.c:389)
-copied 'load' from after dictionary6.c
+/* status:
 copied node by created temp at function load */
 // Implements a dictionary's functionality
 
@@ -14,7 +8,7 @@ copied node by created temp at function load */
 #include <string.h> // strlen
 #include "dictionary.h"
 // Default dictionary
-#define DICTIONARY "dictionaries/cat"
+#define DICTIONARY "dictionaries/medium"
 // Represents number of children for each node in a trie
 #define N 27 // 26 letters + apostrophes ??
 // Represents a node in a trie
@@ -29,88 +23,6 @@ node *root;
 
 // my prototype
 bool scanline(int sc_low, int sc_max);
-
-
-/***** ***** ***** load */
-// Loads dictionary into memory, returning true if successful else false
-/*  for every dictionary word, iterate through the trie
-    each element in children corresponds to a
-    different letter
-    check the value at childen[i]
-        if NULL, malloc a new node, have children[i] point to it
-        if not NULL, move to new node and continue
-    if at end of word, set is_word to true */
-bool load(const char *dictionary)
-{
-    // Initialize trie
-    root = malloc(sizeof(node));        // valgrind fail here
-    if (root == NULL)
-    {
-        return false;
-    }
-    root->is_word = false;
-    for (int i = 0; i < N; i++)
-    {
-        root->children[i] = NULL;
-    }
-
-    // Open dictionary
-    FILE *file = fopen(dictionary, "r");
-    if (file == NULL)
-    {
-        unload();
-        return false;
-    }
-
-    // Buffer for a word
-    char word[LENGTH + 1];
-
-    node *temp = malloc(sizeof(node));
-    *temp = *root;
-    //free (temp);
-
-    // Insert words into trie
-    while (fscanf(file, "%s", word) != EOF)
-    {
-        //printf("word: %s: \n", word); // ****
-
-        node *ptr = root;
-        for ( int i = 0, l = strlen(word); i<l; i++)
-        {
-            // n - 97 integer of alphabet, which coressponding to children[n]
-            int a = (int)word[i] - 97;
-            if (a == -58) { a = 26;} //  apostrophes, 39,
-
-            if (!ptr->children[a])
-            {
-                // Allocate space for new node
-                node *n = malloc(sizeof(node));
-                if (!n) {return 1; }        // timing same, if remove
-                *n = *temp; // copy the format only
-
-                //ptr->is_word = true; // set this pointer to true (1) for every node reached
-                ptr->children[a] = n;
-                //printf("B");
-                //break;
-            }
-
-            ptr = ptr->children[a]; // next ptr
-        }
-
-        // if at end of word, set is_word to true
-        ptr->is_word = true;
-    }
-
-    free(temp);
-
-    // Close dictionary
-    fclose(file);
-
-    // Indicate success
-    return true;
-}
-
-
 
 // Unloads dictionary from memory, returning true if successful else false
 /* # unload
@@ -153,7 +65,7 @@ bool unload(void)
     ******/
 
     //bool scanning;
-    //bool scanning = scanline(0,5);
+    bool scanning = scanline(0,5);
 
     node *ml[46];           // memorise the address at this level
     int ma[46];             // memorise the alphabetic of that level
@@ -203,8 +115,8 @@ bool unload(void)
     // for testing
     //printf("%i N:", ptr->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
     //{ if (ptr->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
-    free (root);
-    //bool scanning = scanline(0,5);
+
+    scanning = scanline(0,5);
 
     return true;
     // valgrind error  for cat and catch, 3 block loss at malloc, u.c:353
@@ -223,6 +135,58 @@ bool unload(void)
 */
 
 
+// Scan print of node from root to bottom, only for mine debugging
+bool scanline(int sc_low, int sc_max)
+{
+    if (root == NULL) return false; // if root not created
+    printf("scanline sc _ level alpha is_word: children + alpha\n");
+    int sc = 0; // scanline count.. can adjust sc_low & sc_max
+
+    node *ml[46];           // memorise the address at this level
+    int ma[46];             // memorise the alphabetic of that level
+
+    node *ptr = root;       // copy pointer
+
+    int mc = 0;             // levelth
+    int a = 0;              // alpha position
+    while (a < 27)
+    {
+        if (ptr->children[a] != NULL)
+        {
+            if (sc >= sc_low)
+            {
+                printf("%i _%2i %c %i: ",sc,mc,97+a,ptr->is_word);
+                for (int z = 0; z < N; z++) // 0 is false**** my test
+                { if (ptr->children[z]) printf("%c ", 97+z); else printf(". "); } printf("\n");
+            }
+            sc++; if (sc>sc_max ) {printf(" exit sc_max = %i\n", sc_max);return false; }
+
+            ml[mc] = ptr;   // save the pointer at mc level
+            ma[mc] = a;     // save the alpha position at mc level
+
+            // point to the next children
+            ptr = ptr->children[a]; //same as ptr = ml[mc]->children[ma[mc]];
+            mc++;           // next deeper level
+            a=0;            // start to scan at alpha 0
+        }
+        else
+        {
+            // if the children null, move to next alpha
+            a++;
+            while (a >= 27)
+            {
+                mc = mc -1;                 // move back to the previous level
+                if (mc < 0)                 // if already at root level, break
+                {
+                    break;
+                }
+                ptr = ml[mc];   // copy pointer and alpha to pointer
+                a = ma[mc]+1;   // if a is 26, loop back
+            }
+        }
+    }
+    return true;
+}
 
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
 /*  1. use array for alpha[] and lvl[] for 45+1 levels of "pneumonoultramicroscopicsilicovolcanoconiosis"
@@ -284,6 +248,9 @@ unsigned int size(void)
 }
 
 
+
+
+
 // Returns true if word is in dictionary else false
 /*  # check
 * case-insensitivity
@@ -333,60 +300,107 @@ bool check(const char *word)
     return false;
 }
 
-
-
-// Scan print of node from root to bottom, only for mine debugging
-bool scanline(int sc_low, int sc_max)
+// Loads dictionary into memory, returning true if successful else false
+/*
+* for every dictionary word, iterate through the trie
+* each element in children corresponds to a different letter
+* check the value at childen[i]
+* * if NULL, malloc a new node, have children[i] point to it
+* * if not NULL, move to new node and continue
+* if at end of word, set is_word to true
+*/
+bool load(const char *dictionary)
 {
-    if (root == NULL) return false; // if root not created
-    printf("scanline sc _ level alpha is_word: children + alpha\n");
-    int sc = 0; // scanline count.. can adjust sc_low & sc_max
-
-    node *ml[46];           // memorise the address at this level
-    int ma[46];             // memorise the alphabetic of that level
-
-    node *ptr = root;       // copy pointer
-
-    int mc = 0;             // levelth
-    int a = 0;              // alpha position
-    while (a < 27)
+    int C_mallloc = 0;  // **** tobedel ****
+    // Initialize trie
+    root = malloc(sizeof(node));  C_mallloc++;  // **** tobedel ****
+    if (root == NULL)
     {
-        if (ptr->children[a] != NULL)
-        {
-            if (sc >= sc_low)
-            {
-                printf("%i _%2i %c %i: ",sc,mc,97+a,ptr->is_word);
-                for (int z = 0; z < N; z++) // 0 is false**** my test
-                { if (ptr->children[z]) printf("%c ", 97+z); else printf(". "); } printf("\n");
-            }
-            sc++; if (sc>sc_max ) {printf(" exit sc_max = %i\n", sc_max);return false; }
-
-            ml[mc] = ptr;   // save the pointer at mc level
-            ma[mc] = a;     // save the alpha position at mc level
-
-            // point to the next children
-            ptr = ptr->children[a]; //same as ptr = ml[mc]->children[ma[mc]];
-            mc++;           // next deeper level
-            a=0;            // start to scan at alpha 0
-        }
-        else
-        {
-            // if the children null, move to next alpha
-            a++;
-            while (a >= 27)
-            {
-                mc = mc -1;                 // move back to the previous level
-                if (mc < 0)                 // if already at root level, break
-                {
-                    break;
-                }
-                ptr = ml[mc];   // copy pointer and alpha to pointer
-                a = ma[mc]+1;   // if a is 26, loop back
-            }
-        }
+        return false;
     }
+    root->is_word = false;
+    for (int i = 0; i < N; i++)
+    {
+        root->children[i] = NULL;
+    }
+
+
+    //printf("%i r:", root->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
+    //{ if (root->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
+
+    // Open dictionary
+    FILE *file = fopen(dictionary, "r");
+    if (file == NULL)
+    {
+        unload();
+        return false;
+    }
+
+    // Buffer for a word
+    char word[LENGTH + 1];
+
+    node *temp = malloc(sizeof(node));
+    *temp = *root;
+    //free (temp);
+
+    // Insert words into trie
+    while (fscanf(file, "%s", word) != EOF)
+    {
+        //printf("word: %s: \n", word); // **** tobedel
+
+        node *ptr = root;
+        for ( int i = 0, l = strlen(word); i<l; i++)
+        {
+            // n - 97 integer of alphabet, which coressponding to children[n]
+            int alpha = (int)word[i] - 97;
+            if (alpha == -58) { alpha = 26;} //  apostrophes, 39,
+
+            if (!ptr->children[alpha])
+            {
+                // Allocate space for new node
+                node *n = malloc(sizeof(node));  C_mallloc++;  // **** tobedel ****
+                if (!n) {return 1; }
+                *n = *temp;
+
+                //ptr->is_word = true; // set this pointer to true (1) for every node reached
+                ptr->children[alpha] = n;
+                //printf("B");
+                //break;
+            }
+
+            //printf("%i t:", ptr->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
+            //{ if (ptr->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
+
+            ptr = ptr->children[alpha]; // next ptr
+            //printf("%i p:", ptr->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
+            //{ if (ptr->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
+        }
+
+        // if at end of word, set is_word to true
+        ptr->is_word = true;
+        //printf("%i e:", ptr->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
+        //{ if (ptr->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
+    }
+
+    /*/ Print numbers
+    printf("\n");
+    for (node *ptr = numbers; ptr != NULL; ptr = ptr->next)
+    {
+        printf("%i\n", ptr->number);
+    }
+    */
+
+    free (temp);
+
+    // Close dictionary
+    fclose(file);
+
+    printf("* Count malloc: %i \n",C_mallloc++);  // **** tobedel ****
+
+    // Indicate success
     return true;
 }
+
 
 
 int main(void)
