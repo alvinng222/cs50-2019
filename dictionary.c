@@ -1,29 +1,14 @@
-/* status: add unload free root
-    check50 cs50/problems/2019/x/speller
-    alpha to a
-    copied node at funtion load
-    aim: valgrind zero error, but time too long */
-/*
-./speller texts/grimm.txt | against staff
-WORDS MISSPELLED:     718
-WORDS IN DICTIONARY:  143091
-WORDS IN TEXT:        103614
-TIME IN load:         0.06 | 0.02
-TIME IN check:        0.06 | 0.06 ok
-TIME IN size:         0.03 | 0.00
-TIME IN unload:       0.04 | 0.01
-TIME IN TOTAL:        0.20 | 0.08
-staff: ~cs50/2019/x/pset4/speller dictionaries/large texts/grimm.txt
-*/
 // cs50-2019 pset4 dictionary.c dictionary.h speller.c makefile
 // dictionary.c
 // Sep 14, 2019
 // Implements a dictionary's functionality
 
+// eg ~/work4/ $ ./speller texts/wordsworth.txt
+// ./speller texts/lalaland.txt
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> // strlen
 
 #include "dictionary.h"
 
@@ -44,12 +29,9 @@ node *root;
 // my prototype: for my debugging
 bool scanline(int sc_low, int sc_max);
 
-// eg ~/work4/ $ ./speller texts/wordsworth.txt
-// ./speller texts/lalaland.txt
-///speller texts/cat.txt
 
-/***** ***** ***** load */
-// Loads dictionary into memory, returning true if successful else false
+/***** ***** ***** load
+ * Loads dictionary into memory, returning true if successful else false */
 /*  for every dictionary word, iterate through the trie
     each element in children corresponds to a
     different letter
@@ -57,6 +39,7 @@ bool scanline(int sc_low, int sc_max);
         if NULL, malloc a new node, have children[i] point to it
         if not NULL, move to new node and continue
     if at end of word, set is_word to true */
+
 bool load(const char *dictionary)
 {
     // Initialize trie
@@ -82,42 +65,50 @@ bool load(const char *dictionary)
     // Buffer for a word
     char word[LENGTH + 1];
 
+    // temporary for format node
     node *temp = malloc(sizeof(node));
     *temp = *root;
-    //free (temp);
 
     // Insert words into trie
     while (fscanf(file, "%s", word) != EOF)
     {
-        //printf("word: %s: \n", word); // ****
-
         node *ptr = root;
-        for ( int i = 0, l = strlen(word); i<l; i++)
+
+        int i = 0;
+        while (word [i])
         {
-            // n - 97 integer of alphabet, which coressponding to children[n]
+            // n - 97 integer of alphabet, coressponding to children[n]
             int a = (int)word[i] - 97;
-            if (a == -58) { a = 26;} //  apostrophes, 39,
+            if (a == -58)
+            {
+                a = 26;         // apostrophes, 39
+            }
 
             if (!ptr->children[a])
             {
                 // Allocate space for new node
                 node *n = malloc(sizeof(node));
-                if (!n) {return 1; }        // timing same, if remove
-                *n = *temp; // copy the format only
+                if (!n)
+                {
+                    return 1;
+                }
 
-                //ptr->is_word = true; // set this pointer to true (1) for every node reached
+                *n = *temp;     // copy the format only
+
+                // next deeper node
                 ptr->children[a] = n;
-                //printf("B");
-                //break;
             }
 
             ptr = ptr->children[a]; // next ptr
+
+            i++ ;
         }
 
         // if at end of word, set is_word to true
         ptr->is_word = true;
     }
 
+    // freeing temporary node
     free(temp);
 
     // Close dictionary
@@ -127,11 +118,15 @@ bool load(const char *dictionary)
     return true;
 }
 
-/***** ***** ***** size */
-// Returns number of words in dictionary if loaded else 0 if not yet loaded
-/*  1. use array for alpha[] and lvl[] for 45+1 levels of "pneumonoultramicroscopicsilicovolcanoconiosis"
-    2. check is_word, scan and save alpha & pointer's add if not NULL, then go to next level pointer's add
-    3. is scan all NULL, back to -1 level and +1 alpha */
+
+
+/***** ***** ***** size
+ * Returns number of words in dictionary if loaded else 0 if not yet loaded. */
+/*  Array for a[], and lvl[] for 45+1 levels of "pneumonoultramicroscopicsilicovolcanoconiosis".
+    Check is_word, scan and save alpha & pointer's address if not NULL,
+        then go to next level pointer's address.
+    Is scan all NULL, back to -1 level and +1 a */
+
 unsigned int size(void)
 {
     int n = 0;              // word count
@@ -143,21 +138,23 @@ unsigned int size(void)
 
     int mc = 0;             // levelth
     int a = 0;              // alpha position
+
     while (a < 27)
     {
         if (ptr->children[a] != NULL)
-        {                   //printf("w lvl %i %c\n", mc,  97+a);// testing *
+        {
+            //printf("w lvl %i %c\n", mc,  97+a);// testing *
             ml[mc] = ptr;   // save the pointer at mc level
             ma[mc] = a;     // save the alpha position at mc level
 
             // point to the next children
-            ptr = ptr->children[a]; //same as ptr = ml[mc]->children[ma[mc]];
+            ptr = ptr->children[a]; //ptr = ml[mc]->children[ma[mc]];
             mc++;           // next deeper level
-            a=0;            // start to scan at alpha 0
+            a = 0;          // start to scan at alpha 0
 
-            if ((ptr->is_word) == true )    // if word is true, count
+            if ((ptr->is_word) == true) // if word is true, count
             {
-                n++;        //printf("TRUE\n");
+                n++;
             }
         }
         else
@@ -166,83 +163,155 @@ unsigned int size(void)
             a++;
 
             while (a >= 27)
-            {               //printf("N lvl %i %c\n", mc,  97+a); // testing *
-                mc = mc -1;                 // move back to the previous level
+            {
+                //printf("N lvl %i %c\n", mc,  97+a); // testing *
+                mc = mc - 1;        // move back to the previous level
 
-                if (mc < 0)                 // if already at root level, break
+                if (mc < 0)         // if already at root level, break
                 {
                     break;
                 }
 
                 // copy pointer and alpha to pointer
                 ptr = ml[mc];
-                a = ma[mc]+1;   // if a is 26, loop back
+                a = ma[mc] + 1;     // if a is 26, loop back
             }
         }
     }
 
     return n;
-    /* for testing
-    printf("%i N:", ptr->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
-    { if (ptr->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");  */
 }
 
 
-/***** ***** ***** check */
-// Returns true if word is in dictionary else false
-/*  # check
-  case-insensitivity
-  assume strings with only alphabeticall characters and/or apostrophes
-    # traversing a trie
-  for each letter in inout word
-    go to corresponding element in children
-        if NULL, word is misspelled
-        if not NULL, move to next letter
-    once at end of input word
-        check if is_word is true */
-// eg ~/work4/ $ ./speller texts/wordsworth.txt
+
+/***** ***** ***** check
+ * Returns true if word is in dictionary else false */
+/* assume strings with only alphabeticall characters and/or apostrophes
+    convert to lower case if not,
+traversing a trie
+    for each letter in inout word, go to corresponding element in children
+        if NULL, word is misspelled, if not NULL, move to next letter
+    once at end of input word, check if is_word is true
+// eg ~/work4/ $ ./speller texts/wordsworth.txt */
+
 bool check(const char *word)
 {
     node *ptr = root;
 
-    //printf("here we are: %s\n", word);
-    int length = strlen(word);
-    for (int c=0; c<length; c++)
+    int c = 0;
+    while (word [c])
     {
         int alpha;
         // check if word[] is captitalize; a = 97, z = 122,  A = 65 , Z = 90 , ' = 39
         if ((word[c] >= 'A') && (word[c] <= 'Z'))
-        {alpha = (int)word[c] +32 - 97;}
-
+        {
+            alpha = (int)word[c] + 32 - 97;
+        }
+        // n - 97 integer of alphabet, coressponding to children[n]
         else
-        // n - 97 integer of alphabet, which coressponding to children[n]
-        {alpha = (int)word[c] - 97;}
+        {
+            alpha = (int)word[c] - 97;
+        }
 
-        if (alpha == -58) { alpha = 26;} //  apostrophes, 39,
+        if (alpha == -58)
+        {
+            alpha = 26;     //  apostrophes, 39
+        }
 
         // if NULL at the dictionary
         if (ptr -> children[alpha] == NULL)
         {
-            return 0; // 0 is false
+            return 0;       // 0 is false
         }
 
         // pointer to next letter
         ptr = ptr -> children[alpha];
+
+        c++;
     }
-    //printf("\n");
 
     // if at end of word, check is_word to true
-    if (ptr->is_word == true) return 1;
+    if (ptr->is_word == true)
+    {
+        return 1;
+    }
 
     return false;
 }
 
 
-/***** ***** ***** unload */
-// Unloads dictionary from memory, returning true if successful else false
+
+/***** ***** ***** unload
+ * Unloads dictionary from memory, returning true if successful else false */
+/* # unload from bottom to top
+    travel to lowest possiblt node
+        free all pointers in children
+        backtrack upwards, freeing all elements in each children array until you hit root node
+# valgrind --leak-check=full --show-leak-kinds=all ./speller texts/grimm.txt*/
+
 bool unload(void)
 {
-    /**** cat only *******
+    //bool scanning;
+    //scanning = scanline(0,5);
+
+    node *ml[46];           // memorise the address at this level
+    int ma[46];             // memorise the alphabetic of that level
+
+    node *ptr = root;       // copy pointer
+
+    int mc = 0;             // levelth
+    int a = 0;              // alpha position
+
+    while (a < 27)
+    {
+        if (ptr->children[a] != NULL)
+        {
+            ml[mc] = ptr;   // save the pointer at mc level
+            ma[mc] = a;     // save the alpha position at mc level
+            //printf("m%i ", mc);
+
+            // point to the next children
+            ptr = ptr->children[a]; //same as ptr = ml[mc]->children[ma[mc]];
+            mc++;           // next deeper level
+            a = 0;          // start to scan at alpha 0
+        }
+        else
+        {
+            a++;            // if the children null, move to next alpha
+
+            while (a >= 27)
+            {
+                node *temp = ptr;
+                mc = mc - 1;    // move back to the previous level
+                if (mc < 0)
+                {
+                    break;      // if already at root level, break
+                }
+
+                // copy pointer and alpha to pointer
+                ptr = ml[mc];
+                ptr->children[ma[mc]] = NULL;
+
+                if (temp != NULL)
+                {
+                    free(temp);
+                }
+
+                a = ma[mc] + 1; // if a is 26, loop back
+            }
+        }
+    }
+
+    // for valgrind
+    free(root);
+
+    //bool scanning = scanline(0,5);
+
+    return true;
+}
+
+/** cat only - simplify Trie link loop for learning purposes
+{
     bool scanning;          // bool scanning = scanline(0,50);
 
     node *ml[46];           // memorise the address at this level
@@ -267,74 +336,22 @@ bool unload(void)
     return false;
 
     // good! no error
-    ******/
+}*/
 
-    //bool scanning;
-    //bool scanning = scanline(0,5);
 
-    node *ml[46];           // memorise the address at this level
-    int ma[46];             // memorise the alphabetic of that level
 
-    node *ptr = root;       // copy pointer
-
-    int mc = 0;             // levelth
-    int a = 0;              // alpha position
-
-    while (a < 27)
-    {
-        if (ptr->children[a] != NULL)
-        {                   //printf("w lvl %i %c\n", mc,  97+a);// testing *
-            ml[mc] = ptr;   // save the pointer at mc level
-            ma[mc] = a;     // save the alpha position at mc level
-                                                //printf("m%i ", mc);
-            // point to the next children
-            ptr = ptr->children[a]; //same as ptr = ml[mc]->children[ma[mc]];
-            mc++;           // next deeper level
-            a=0;            // start to scan at alpha 0
-        }
-        else
-        {
-            a++;                                // if the children null, move to next alpha
-
-            while (a >= 27)
-            {                                   //printf("N lvl %i %c\n", mc,  97+a); // testing *
-                node *temp = ptr;
-                mc = mc -1;                     // move back to the previous level
-                if (mc < 0) { break; }          // if already at root level, break
-
-                // copy pointer and alpha to pointer
-                ptr = ml[mc];                   //printf("ml[%i]  |  ", mc); //previous , t
-                ptr->children[ma[mc]] = NULL;   //printf("children[ma[%i] %c = null |  ", mc, ma[mc]+97 );
-
-                if (temp != NULL)
-                                                //printf("free ml[%i + 1] \n",mc);
-
-                { free (temp); }
-
-                a = ma[mc]+1;   // if a is 26, loop back
-            }
-        }
-    }
-
-    //return n;
-    // for testing
-    //printf("%i N:", ptr->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
-    //{ if (ptr->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
-    free (root);
-    //bool scanning = scanline(0,5);
-
-    return true;
-    // valgrind error  for cat and catch, 3 block loss at malloc, u.c:353
-
-}
-
-/***** ***** ***** scan */
-// Scan print of node from root to bottom, only for mine debugging
+/***** ***** ***** scan
+ * Scan print of node from root to bottom, only for mine debugging  */
 bool scanline(int sc_low, int sc_max)
 {
-    if (root == NULL) return false; // if root not created
+    if (root == NULL)
+    {
+        return false;       // if root not created
+    }
+
     printf("scanline sc _ level alpha is_word: children + alpha\n");
-    int sc = 0; // scanline count.. can adjust sc_low & sc_max
+
+    int sc = 0;     // scanline count.. can adjust sc_low & sc_max
 
     node *ml[46];           // memorise the address at this level
     int ma[46];             // memorise the alphabetic of that level
@@ -343,17 +360,36 @@ bool scanline(int sc_low, int sc_max)
 
     int mc = 0;             // levelth
     int a = 0;              // alpha position
+
     while (a < 27)
     {
         if (ptr->children[a] != NULL)
         {
             if (sc >= sc_low)
             {
-                printf("%i _%2i %c %i: ",sc,mc,97+a,ptr->is_word);
-                for (int z = 0; z < N; z++) // 0 is false**** my test
-                { if (ptr->children[z]) printf("%c ", 97+z); else printf(". "); } printf("\n");
+                printf("%i _%2i %c %i: ", sc, mc, 97 + a, ptr->is_word);
+
+                for (int z = 0; z < N; z++) // 0 is false
+                {
+                    if (ptr->children[z])
+                    {
+                        printf("%c ", 97 + z);
+                    }
+                    else
+                    {
+                        printf(". ");
+                    }
+                }
+
+                printf("\n");
             }
-            sc++; if (sc>sc_max ) {printf(" exit sc_max = %i\n", sc_max);return false; }
+
+            sc++;
+            if (sc > sc_max)
+            {
+                printf(" exit sc_max = %i\n", sc_max);
+                return false;
+            }
 
             ml[mc] = ptr;   // save the pointer at mc level
             ma[mc] = a;     // save the alpha position at mc level
@@ -361,7 +397,7 @@ bool scanline(int sc_low, int sc_max)
             // point to the next children
             ptr = ptr->children[a]; //same as ptr = ml[mc]->children[ma[mc]];
             mc++;           // next deeper level
-            a=0;            // start to scan at alpha 0
+            a = 0;          // start to scan at alpha 0
         }
         else
         {
@@ -369,24 +405,45 @@ bool scanline(int sc_low, int sc_max)
             a++;
             while (a >= 27)
             {
-                mc = mc -1;                 // move back to the previous level
-                if (mc < 0)                 // if already at root level, break
+                mc = mc - 1;    // move back to the previous level
+                if (mc < 0)     // if already at root level, break
                 {
                     break;
                 }
                 ptr = ml[mc];   // copy pointer and alpha to pointer
-                a = ma[mc]+1;   // if a is 26, loop back
+                a = ma[mc] + 1; // if a is 26, loop back
             }
         }
     }
     return true;
 }
-    //printf("%i r:", root->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
-    //{ if (root->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
+//printf("%i r:", root->is_word); for (int z = 0; z < N; z++) // 0 is false**** my test
+//{ if (root->children[z]) printf("%c ", 97+z); else printf(". ");  } printf("\n");
 
 /*
-~/work4/ $ check50 cs50/problems/2019/x/speller
+./speller texts/grimm.txt | against staff
+WORDS MISSPELLED:     718
+WORDS IN DICTIONARY:  143091
+WORDS IN TEXT:        103614
+TIME IN load:         0.06 | 0.02
+TIME IN check:        0.06 | 0.06 ok
+TIME IN size:         0.03 | 0.00
+TIME IN unload:       0.04 | 0.01
+TIME IN TOTAL:        0.20 | 0.08
+staff: ~cs50/2019/x/pset4/speller dictionaries/large texts/grimm.txt
+*/
+/*
+valgrind --leak-check=full --show-leak-kinds=all ./speller texts/grimm.txt
+==4599== HEAP SUMMARY:
+==4599==     in use at exit: 0 bytes in 0 blocks
+==4599==   total heap usage: 367,088 allocs, 367,088 frees, 82,236,912 bytes allocated
+==4599==
+==4599== All heap blocks were freed -- no leaks are possible
+==4599==
+==4599== For counts of detected and suppressed errors, rerun with: -v
+==4599== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
 
+~/work4/ $ check50 cs50/problems/2019/x/speller
 Results for cs50/problems/2019/x/speller generated by check50 v3.0.8
 :) dictionary.c, dictionary.h, and Makefile exist
 :) speller compiles
@@ -396,20 +453,10 @@ Results for cs50/problems/2019/x/speller generated by check50 v3.0.8
 :) handles words with apostrophes properly
 :) spell-checking is case-insensitive
 :) handles substrings properly
-:( program is free of memory errors
-    valgrind tests failed; rerun with --log for more information.
-To see the results in your browser go to https://submit.cs50.io/check50/8f54d615d738ebd8dc9f5f8eda57b07157f3552e
+:) program is free of memory errors
+To see the results in your browser go to https://submit.cs50.io/check50/07101fa30f13ee0efed486eb16a9b4ae33a5889e
 
-:( program is free of memory errors
-valgrind tests failed; rerun with --log for more information.
-Log
-running valgrind --show-leak-kinds=all --xml=yes --xml-file=/tmp/tmpa6w46t2m -- ./speller substring/dict substring/text...
-checking for output "MISSPELLED WORDS\n\nca\ncats\ncaterpill\ncaterpillars\n\nWORDS MISSPELLED: 4\nWORDS IN DICTIONARY: 2\nWORDS IN TEXT: 6\n"...
-checking that program exited with status 0...
-checking for valgrind errors...
-224 bytes in 1 blocks are still reachable in loss record 1 of 1: (file: dictionary.c, line: 63)
-*/
+submit50 cs50/problems/2019/x/challenges/speller
 
-/*
-valgrind --leak-check=full --show-leak-kinds=all ./speller texts/grimm.txt
+Go to https://speller.cs50.io/challenge/ee9322c189f3d10926e461abd9427a38324c4b6c to see your results!
 */
