@@ -1,0 +1,45 @@
+/* comments area */
+body
+{
+    text-align: center;
+    background-color: powderblue;
+}
+
+header
+{
+    font-family: verdana;
+    font-size: large;
+    color: blue;
+}
+
+main
+{
+    font-size: medium;
+}
+
+footer
+{
+    font-size: small;
+}
+
+ul, ol
+{
+    text-align: left;
+    font-size: medium;
+}
+
+#myID 
+{
+    background-color: lightblue;
+    color: black;
+    padding: 10px;
+    text-align: center;
+}
+
+.myClass 
+{
+    background-color: black;
+    color: tomato;
+    padding: 20px;
+}
+                
