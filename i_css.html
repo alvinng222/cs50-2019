@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!---
+CSS stands for Cascading Style Sheets.
+
+CSS describes how HTML elements are to be displayed on screen, paper, or in other media.
+    
+    4 html - index.html, 
+10 distinct html tag: <b>; <h1>, <br>, 
+styles.css: class; ID; 
+-->
+
+<html lang="en">
+    <head>
+        <link href="styles.css" rel="stylesheet">
+        <!-- remove for css
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet">
+        -->
+        <style>
+            /* comments on css  */      
+        </style>
+            <!-- comments on html -->
+        <title>Learning HTML - css</title>
+    </head>
+    <body>
+        <!-- div class="container"  remove for css -->
+            <header>
+                This is header:
+                <h1><a href="index.html">Learning HTML</a></h1>
+            </header>
+        
+            <main>
+               <p>This is 'main'. </p>
+                This web pages is my summary of learning html from CS50,<br>
+                css. External file: i_css.css
+
+                <!-- class, id, span, div -->
+                <p>
+                    span - this is an inline span,
+                    <span style="border: 1px solid black"> Hello World</span> inside paragaph.
+                </p>
+
+                <h3 id="myID">id - using style #myID</h3>
+            
+                <div class="myClass">
+                    class - using style .myClass <br>
+                    all HTML elements with the same class attribute will get the same style.
+                </div>
+            
+                <div style="border: 1px solid black">The DIV element is a block element.</div>
+            </main>
+        <footer>
+            This is 'footer'.
+        </footer>
+    </body>
+</html>
