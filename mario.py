@@ -20,6 +20,7 @@ for i in range(height):
         # print return to prompt
     print("  ", end='')
 
+    # print the other half of row
     for k in range(i + 1):
         print("#", end='')
     print("")
