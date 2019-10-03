@@ -11,8 +11,7 @@ if len(sys.argv) != 2 or not sys.argv[1].isdecimal():
 
 key = int(sys.argv[1])
 
-# function rotate, single char for a to Z will rotate with key
-# using c[i] = (p[i] + k) % 26
+
 def rotate(p, k):
     for i in p:
         if i.isupper():
@@ -21,6 +20,8 @@ def rotate(p, k):
             print(chr(((ord(i) - 97 + k) % 26) + 97), end='')   # 97 is 'a'
         else:
             print(i, end="")
+# function rotate, single char for a to Z will rotate with key
+# using c[i] = (p[i] + k) % 26
 
 
 ptext = get_string("plaintext:  ")
