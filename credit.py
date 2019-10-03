@@ -101,7 +101,6 @@ if __name__ == "__main__":
 # 5105105105105100 as MASTERCARD
 # 4111111111111111 as VISA
 # 4012888888881881 as VISA
-# :( identifies 1234567890 as INVALID
-#     did not find "INVALID\n"
+# 1234567890 as INVALID
 # :) rejects a non-numeric input of "foo"
 # :) rejects a non-numeric input of ""
