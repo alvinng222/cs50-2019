@@ -6,7 +6,7 @@ from cs50 import get_int
 # prompt user for positive number
 while True:
     height = get_int("Height: ")
-    if height > 1 and height < 8:
+    if height > 0 and height < 9:
         break
 
 # print out the column and rows
