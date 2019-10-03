@@ -12,7 +12,7 @@ def main():
     # prompt for number between 13 to 17 digits
     while True:
         number = get_int("Number: ")
-        if number > digit13 and number < (digit16 * 10):
+        if number < (digit16 * 10):
             break
 
     # if function Luhn valid, check type
@@ -94,9 +94,14 @@ if __name__ == "__main__":
     main()
 
 # $ python credit.py
-# Number: 378282246310005
-# AMEX
-# Number: 5555555555554444
-# MASTERCARD
-# Number: 4111111111111111
-# VISA
+#
+# 378282246310005 as AMEX
+# 371449635398431 as AMEX
+# 5555555555554444 as MASTERCARD
+# 5105105105105100 as MASTERCARD
+# 4111111111111111 as VISA
+# 4012888888881881 as VISA
+# :( identifies 1234567890 as INVALID
+#     did not find "INVALID\n"
+# :) rejects a non-numeric input of "foo"
+# :) rejects a non-numeric input of ""
