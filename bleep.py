@@ -91,3 +91,6 @@ if __name__ == "__main__":
 # **** **** it
 
 # https://docs.python.org/3/tutorial/index.html
+
+# :( handles banned words lists with arbitrary words in them
+#     expected "My *** and ***..., not "My cat and dog...
