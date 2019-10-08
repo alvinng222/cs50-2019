@@ -3,19 +3,15 @@
 # Implement a program that censors messages that contain
 # words that appear on a list of supplied "banned words."
 
-# my algorithm
-# load the text from babbed.txt, into set()
-# for word in text
-#  strcomp?? for ord in dict
-#   if found replace with '*' * len(word)
-
 from cs50 import get_string
 from sys import argv
 
 # Default dictionary
 WORDS = "banned.txt"
+
 # Words in dictionary
 words = set()
+
 
 def main():
 
@@ -30,27 +26,17 @@ def main():
         print(f"Could not load {WORDS}.")
         exit(1)
 
-    # print("words",words)
-
     print("What message would you like to censor?")
     text = get_string("")
 
-    stext = text.split()
-    # print("stext",stext)
+    stext = text.split()    # convert to set of words
 
-    for txt in stext:
-        if txt.lower() in words:
-            print("*" * len(txt), end=' ')
+    for t in stext:
+        if t.lower() in words:
+            print("*" * len(t), end=' ')
         else:
-            print(txt, end=' ')
-
+            print(t, end=' ')
     print()
-    #pass
-
-
-# def check(word):
-#     """Return true if word is in dictionary else false"""
-#     return word.lower() in words
 
 
 def load(dictionary):
@@ -60,26 +46,12 @@ def load(dictionary):
         words.add(line.rstrip("\n"))
     file.close()
     return True
+    # pass
 
-    # TODO
 
 if __name__ == "__main__":
     main()
 
-# Odds are you’ll find str.split of interest.
-
-# Odds are you’ll find str.lower of interest.
-
-# Odds are you’ll find str.strip of interest,
-# to chomp off any trailing newlines that may be
-# attached to words on your "banned words" list.
-
-
-
-# $ ~cs50/2019/x/pset6/bleep banned.txt
-
-# ~/ $ ~cs50/2019/x/pset6/bleep
-# Usage: python bleep.py dictionary
 
 # $ python bleep.py banned.txt
 # What message would you like to censor?
