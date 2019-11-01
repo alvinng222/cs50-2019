@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+
+{% block main %}
+
+    <!-- http://getbootstrap.com/docs/4.1/content/typography/ -->
+    <h1 class="mb-3">Form</h1>
+
+    <!-- http://getbootstrap.com/docs/4.1/components/forms/ -->
+    <form action="/form" method="post">
+
+        <!-- TODO -->
+        <!-- https://www.w3schools.com/bootstrap4/bootstrap_forms.asp -->
+        <div class="form-group">
+            <label class="mr-sm-2 sr-only" for="surveyName">Name</label>
+            <input type="text" class="form-control col-sm-3" id="surveyName"
+            placeholder="Name" name="surveyName" required >
+        </div>
+
+        <div class="form-group">
+            <label class="mr-sm-2 sr-only" for="surveyHouse">House</label>
+            <select name="surveyHouse" class="custom-select col-sm-2" id="surveyHouse" required >
+                <option disabled selected value="">House</option>
+                <option>Gryffindor</option>
+                <option>Hufflepuff</option>
+                <option>Ravenclaw</option>
+                <option>Slytherin</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="surveyOption"
+                        value="Beater" required>Beater
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="surveyOption" value="Chaser">Chaser
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="surveyOption" value="Keeper">Keeper
+                </label>
+            </div>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="surveyOption" value="Seeker">Seeker
+                </label>
+            </div>
+        </div>
+        <!-- https://getbootstrap.com/docs/4.1/components/forms/#validation -->
+
+        <!-- http://getbootstrap.com/docs/4.1/components/buttons/ -->
+        <button class="btn btn-primary" type="submit">Submit</button>
+
+    </form>
+
+    <script>
+
+        /* TODO */
+        /* from cs50 lecture week7 froshims6 */
+        document.querySelector('form').onsubmit = function() {
+            if (!document.querySelector('input').value) {
+                alert('You must provide your name!');
+                return false;
+            }
+            else if (!document.querySelector('select').value) {
+                alert('You must provide your house!');
+                return false;
+            }
+            return true;
+        };
+
+    </script>
+
+{% endblock %}
