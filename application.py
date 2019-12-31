@@ -353,7 +353,7 @@ def register():
 
         # Ensure username was submitted. # not required since will route to /check
         if not request.form.get("username"):
-            return apology("must provide username", 403)
+            return apology("must provide username", 400)
 
         # Ensure password was submitted
         password = request.form.get("password")
