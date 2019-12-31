@@ -19,7 +19,6 @@
         <button class="btn btn-primary" type="submit">Register</button>
     </form>
 
-    <!-- https://ngteckwee.blogspot.com/2019/10/cs50-2019-week7-frost.html frostims6/ -->
      <script>
         /*  Aims: It prevents submission of your registration form if the inputted
             username is already taken, letting the user know, as via alert      */
@@ -38,7 +37,7 @@
 
         // constantly get reflesh from any key press with .onkeyup
         input.onkeyup = function() {
-            $.get('/check?q=' + input.value, function(data) {
+            $.get('/check?username=' + input.value, function(data) {
                     status = data;
             }, "json");
             console.log("onkeyup status: " + status);

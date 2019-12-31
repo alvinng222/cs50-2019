@@ -238,7 +238,7 @@ def check():
     q = request.args.get("q")   # via GET, an HTTP parameter
 
     # call users LIST
-    rows = db.execute("SELECT * FROM users WHERE username= :username", username=q)
+    rows = db.execute("SELECT * FROM users WHERE username= :username", username=username)
     if len(rows) > 0:
         return jsonify("true")      # if there are any data form
     else:
