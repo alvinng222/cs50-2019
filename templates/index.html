@@ -1,0 +1,52 @@
+<!-- index.html dtd Nov 22, 2019 -->
+{% extends "layout.html" %}
+
+{% block title %}
+    Portfolio
+{% endblock %}
+
+{% block main %}
+
+<!-- from bootstraps, table -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Symbol</th>
+            <th scope="col">Name</th>
+            <th scope="col">Shares</th>
+            <th scope="col">Price</th>
+            <th scope="col">TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in stocks %}
+            <tr>
+                <td> {{ stock.symbol }} </td>
+                <td> {{ stock.name }} </td>
+                <td> {{ stock.shares }} </td>
+                <td> {{ stock.price }} </td>
+                <td> {{ stock.total }} </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td> CASH </td>
+            <td colspan="3"> <!-- create merged empty spaces --> </td>
+            <td> {{ cash }} </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan='4'> <!-- create merged empty spaces --> </td>
+            <td> <b>{{ balTotal }}</b> </td>
+        </tr>
+    </tfoot>
+</table>
+
+{% endblock %}
+
+
+<!--
+~/pset8/ $ cd finance
+~/pset8/finance/ $ export API_KEY=pk_4ae54105aac94b909dab2c48b16a875d
+~/pset8/finance/ $ flask run
+-->
