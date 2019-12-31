@@ -152,7 +152,7 @@ def buy():
 
         # Ensure shares was submitted
         if not shares:
-            return apology("missing shares")
+            return apology("missing shares", 400)
 
         # stock’s current price
         price=r["price"]    # pp=usd(price)
