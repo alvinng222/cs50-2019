@@ -235,7 +235,7 @@ def check():
     Flask can return a value in JSON format.    """
 
     # use request.args.get to get a parameter from the request’s URL called q.
-    q = request.args.get("q")   # via GET, an HTTP parameter
+    username = request.args.get("username")   # via GET, an HTTP parameter
 
     # call users LIST
     rows = db.execute("SELECT * FROM users WHERE username= :username", username=username)
