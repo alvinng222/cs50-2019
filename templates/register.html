@@ -1,0 +1,72 @@
+<!-- register.html dtd Nov 11, 2019 -->
+{% extends "layout.html" %}
+
+{% block title %}
+    register
+{% endblock %}
+
+{% block main %}
+    <form action="/register" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="password" placeholder="Password" type="password">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="confirmation" placeholder="Password (again)" type="password">
+        </div>
+        <button class="btn btn-primary" type="submit">Register</button>
+    </form>
+
+    <!-- https://ngteckwee.blogspot.com/2019/10/cs50-2019-week7-frost.html frostims6/ -->
+     <script>
+        /*  Aims: It prevents submission of your registration form if the inputted
+            username is already taken, letting the user know, as via alert      */
+
+        /*  jQuery $.get() Method
+            Description: Load data from the server using a HTTP GET request.
+            jQuery.get( url [, data ] [, success ] [, dataType ] )
+            https://api.jquery.com/jQuery.get/#jqxhr-object     */
+
+        /*  ##$.get## dont work on querySelector('form').onsubmit, because
+            after the browser loaded all, it didnt update 'status' at
+            the beginning.      */
+
+        var status;
+        let input = document.querySelector('input');
+
+        // constantly get reflesh from any key press with .onkeyup
+        input.onkeyup = function() {
+            $.get('/check?q=' + input.value, function(data) {
+                    status = data;
+            }, "json");
+            console.log("onkeyup status: " + status);
+        };
+
+        // call output after .onsubmit
+        document.querySelector('form').onsubmit = function(event) {
+            if (!input.value) {
+                alert('You must provide your username!');
+                return false;
+            }
+            console.log("form status: " + status);
+
+            if (status === "true"){
+                alert("Username is not available");
+                event.preventDefault();
+            }
+        };
+        //myFunction(event);
+
+        //Click the button to find out if the onclick event is a cancelable event./
+        //<button onclick="myFunction(event)">Try it</button>
+        function myFunction(event) {
+            var x = event.cancelable;
+            //document.getElementById("demo").innerHTML = "Cancelable: " + x;
+            console.log("Cancelable: " + x);
+        }
+
+    </script>
+
+{% endblock %}
