@@ -75,55 +75,6 @@ def index():
     """
 
 
-@app.route("/chgPwd", methods=["GET", "POST"])
-@login_required
-def chgPwd():
-    """ 20191222 Change Password """
-
-    userID=session["user_id"]
-
-    # User reached route via POST (as by submitting a form via POST)
-    if request.method == "POST":
-
-        # Ensure password was submitted
-        if not request.form.get("oldPwd"):
-            return apology("must provide orginal password", 403)
-
-        # Ensure new password was submitted
-        newPwd = request.form.get("newPwd")
-        if not newPwd:
-            return apology("must provide NEW password", 400)
-
-        # Ensure password and confirmation was matchded
-        confirmation = request.form.get("confirmation")
-        if newPwd != confirmation:
-            return apology("passwords don't match", 400)
-
-        # Ensure old password is correct
-        rows = db.execute("SELECT * FROM users WHERE ID = :userID", userID=userID)
-
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("oldPwd")):
-            return apology("invalid original password", 403)
-
-        # Hash the new password
-        newHash = generate_password_hash(newPwd)
-
-        # update new hash into database
-        result = db.execute("UPDATE users SET hash = :newHash WHERE rowid = :userID",
-            newHash=newHash, userID=userID)
-        if not result: return apology("new  pasword error", 400)
-
-        # Redirect user to home page
-        return redirect("/")
-
-    # to place username to html, so as Google will not store wrong username
-    # work only outside the above 'if' loop
-    rows = db.execute("SELECT username FROM users WHERE ID = :userID", userID=userID)
-    for row in rows: username = row["username"]
-
-    return render_template("chgPwd.html", username=username)
-
-
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
@@ -245,6 +196,55 @@ def check():
         return jsonify("false")
 
 
+@app.route("/chgPwd", methods=["GET", "POST"])
+@login_required
+def chgPwd():
+    """ 20191222 Change Password """
+
+    userID=session["user_id"]
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure password was submitted
+        if not request.form.get("oldPwd"):
+            return apology("must provide orginal password", 403)
+
+        # Ensure new password was submitted
+        newPwd = request.form.get("newPwd")
+        if not newPwd:
+            return apology("must provide NEW password", 400)
+
+        # Ensure password and confirmation was matchded
+        confirmation = request.form.get("confirmation")
+        if newPwd != confirmation:
+            return apology("passwords don't match", 400)
+
+        # Ensure old password is correct
+        rows = db.execute("SELECT * FROM users WHERE ID = :userID", userID=userID)
+
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("oldPwd")):
+            return apology("invalid original password", 403)
+
+        # Hash the new password
+        newHash = generate_password_hash(newPwd)
+
+        # update new hash into database
+        result = db.execute("UPDATE users SET hash = :newHash WHERE rowid = :userID",
+            newHash=newHash, userID=userID)
+        if not result: return apology("new  pasword error", 400)
+
+        # Redirect user to home page
+        return redirect("/")
+
+    # to place username to html, so as Google will not store wrong username
+    # work only outside the above 'if' loop
+    rows = db.execute("SELECT username FROM users WHERE ID = :userID", userID=userID)
+    for row in rows: username = row["username"]
+
+    return render_template("chgPwd.html", username=username)
+
+
 @app.route("/history")
 @login_required
 def history():
@@ -338,7 +338,6 @@ def quote():
 
     return render_template("quote.html")
     # return apology("TODO")    # was "to do"
-
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -490,7 +489,6 @@ def hello(Name="Hello, ", Text="!"):
     or
     use Javascript on html, eg alert('You must provide your house!');
     """
-
 
 
 """ Database name: finance
