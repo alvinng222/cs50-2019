@@ -1,0 +1,39 @@
+<!-- sell.html dtd Nov 25, 2019 -->
+{% extends "layout.html" %}
+
+{% block title %}
+    Sell
+{% endblock %}
+
+{% block main %}
+    <form action="/sell" method="post">
+        <div class="form-group">
+            <!-- select, drop down form -->
+            <select class="form-control" name="symbol">
+                <option disable select value="">Symbol</option> <!-- from https://finance.cs50.net/sell -->
+                {% for stock in stocks %}
+                    <!-- value=" {{ stock.symbol }} "  the SPACING caused the issues -->
+                    <option value="{{ stock.symbol }}"> {{ stock.symbol }} </option>
+                {% endfor %}
+            </select -->
+        </div>
+        <div class="form-group">
+            <input autocomplete="off" class="form-control" name="shares" placeholder="Shares" min="0" type="number">
+        </div>
+        <button class="btn btn-primary" type="submit">Sell</button>
+    </form>
+{% endblock %}
+
+<!--
+
+
+        can also input not from the list, good use in buy.html
+        <div class="form-group">
+            <input list="symbols" class="form-control" name="symbol" placeholder="Symbol">
+            <datalist id="symbols">
+                {% for stock in stocks %}
+                    <option value="{{ stock.symbol }}">
+                {% endfor %}
+            </datalist>
+        </div>
+-->
