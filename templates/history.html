@@ -1,0 +1,32 @@
+<!-- history.html dtd Nov 28, 2019 -->
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+
+<!-- from bootstraps, table -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Symbol</th>
+            <th scope="col">Shares</th>
+            <th scope="col">Price</th>
+            <th scope="col">Transacted</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+            <tr>
+                <td> {{ row["symbol"] }} </td>
+                <td> {{ row["shares"] }} </td>
+                <td> {{ row["price"] }} </td>
+                <td> {{ row["dateTime"] }} </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
