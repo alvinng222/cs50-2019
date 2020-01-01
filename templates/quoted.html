@@ -1,0 +1,22 @@
+<!-- quoted.html -->
+{% extends "layout.html" %}
+
+{% block title %}
+    Quoted
+{% endblock %}
+
+{% block main %}
+
+        <!-- A share of Alphabet, Inc. (GOOG) costs $1,298.00. -->
+        <p>
+            A share of {{ name }} ({{ symbol }}) costs {{ price }}.
+
+        </p>
+
+{% endblock %}
+
+<!-- script >
+var txt = '{"name":"John", "age":30, "city":"New York"}'
+var obj = JSON.parse(result);
+document.getElementById("demo").innerHTML = obj.name + ", " + obj.age;
+script>  -->
