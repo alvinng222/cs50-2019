@@ -49,4 +49,33 @@
 ~/pset8/ $ cd finance
 ~/pset8/finance/ $ export API_KEY=pk_4ae54105aac94b909dab2c48b16a875d
 ~/pset8/finance/ $ flask run
+
+~/pset8/finance/ $ check50 cs50/problems/2019/x/finance
+Connecting.....
+:) application.py exists
+:) application starts up
+:) register page has all required elements
+:) registering user succeeds
+:) registration with an empty field fails
+:) registration with password mismatch fails
+:( /check route confirms whether username is available
+    route did not return true when username is available
+:) registration rejects duplicate username
+:) login page has all required elements
+:) logging in as registered user succceeds
+:) quote page has all required elements
+:) quote handles invalid ticker symbol
+:) quote handles blank ticker symbol
+:) quote handles valid ticker symbol
+:) buy page has all required elements
+:) buy handles invalid ticker symbol
+:( buy handles fractional, negative, and non-numeric shares
+    expected status code 400, but got 200
+:) buy handles valid purchase
+:) sell page has all required elements
+:) sell handles invalid number of shares
+:) sell handles valid sale
+To see the results in your browser go to https://submit.cs50.io/check50/e4a34b06f9d6eec21eb601769df1e6dd71309504
+~/pset8/finance/ $
+
 -->

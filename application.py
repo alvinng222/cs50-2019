@@ -1,3 +1,7 @@
+""" application.py cs50 20191231
+    refer to index.html for API and flask run to start
+    & check50 status """
+
 import os
 
 from cs50 import SQL
@@ -23,6 +27,7 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
+
 # Custom filter
 app.jinja_env.filters["usd"] = usd
 
@@ -47,7 +52,7 @@ def index():
 
     # call stocks LIST, sorted, ORDER BY symbol
     stocks = db.execute("SELECT * FROM stock WHERE userID= :userID AND shares !=0 ORDER By symbol",
-        userID=session["user_id"])
+                        userID=session["user_id"])
 
     balTotal = 0
     # add in name into 'list'
@@ -55,7 +60,7 @@ def index():
         Symbol = row["symbol"]
         symJson = lookup(Symbol)        # lookup() from helpers.py
         row["name"] = symJson["name"]   # Adding name into dict
-        price=symJson["price"]          # usd() from helpers.py
+        price = symJson["price"]          # usd() from helpers.py
         row["price"] = usd(price)       # Adding price into dict
         total = row["shares"] * price
         row["total"] = usd(total)
@@ -68,7 +73,7 @@ def index():
         cash = row["cash"]
     balTotal = balTotal + cash
 
-    return render_template("index.html", stocks=stocks, cash=usd(cash), balTotal=usd(balTotal) )
+    return render_template("index.html", stocks=stocks, cash=usd(cash), balTotal=usd(balTotal))
 
     """ # to add item to the end of LIST, append() method
     stocks.append({'symbol': 'CASH', 'total': usd(cash), 'balTotal': usd(balTotal) })
@@ -97,7 +102,7 @@ def buy():
         if not r:
             return apology("invalid symbol")
 
-        symbol = r["symbol"] # for upper case, original symbol
+        symbol = r["symbol"]    # for upper case, original symbol
 
         shares = request.form.get("shares")
 
@@ -106,13 +111,13 @@ def buy():
             return apology("missing shares", 400)
 
         # stock’s current price
-        price=r["price"]    # pp=usd(price)
+        price = r["price"]    # pp=usd(price)
 
         # total cost, convert string shares to integer
-        tCost=int(shares)*price
+        tCost = int(shares)*price
 
         # SELECT cash FROM users WHERE id = 6
-        userID=session["user_id"]
+        userID = session["user_id"]
         userC = db.execute("SELECT cash FROM users WHERE id= :userID", userID=userID)
         for row in userC:
             balanceC = row["cash"]
@@ -128,29 +133,29 @@ def buy():
             # check table/stock if symbol available, else create new
             # SELECT * FROM stock WHERE symbol = "aapl" AND userID=1
             rows = db.execute("SELECT * FROM stock WHERE symbol = :symbol AND userID = :userID",
-                symbol=symbol, userID=userID)
+                              symbol=symbol, userID=userID)
             if len(rows) != 1:
                 result = db.execute("INSERT INTO stock (symbol, userID ) VALUES(:symbol, :userID)",
-                    symbol=symbol, userID=userID)
+                                    symbol=symbol, userID=userID)
                 if not result:
                     return apology("symbol unavailable", 400)
 
             # call existing stockID, insert new transaction to history
             rows = db.execute("SELECT * FROM stock WHERE symbol = :symbol AND userID = :userID",
-                symbol=symbol, userID=userID)
-            row=rows[0]
-            stockID=row["stockID"]
+                              symbol=symbol, userID=userID)
+            row = rows[0]
+            stockID = row["stockID"]
 
             result1 = db.execute("INSERT INTO history (userID, symbol, shares, price) VALUES(:userID, :symbol, :shares, :price)",
-                userID=userID, symbol=symbol, shares=shares, price=price)
+                                 userID=userID, symbol=symbol, shares=shares, price=price)
 
             # update table/stock
             result2 = db.execute("UPDATE stock SET shares = shares + :shares WHERE stockID = :stockID",
-                shares=shares, stockID=stockID)
+                                 shares=shares, stockID=stockID)
 
             # update user's balance
             result3 = db.execute("UPDATE users SET cash = cash - :tCost WHERE id = :userID",
-                tCost=tCost, userID=userID)
+                                 tCost=tCost, userID=userID)
 
             if not result1 or not result2 or not result3:
                 return apology("transaction error", 400)
@@ -161,7 +166,7 @@ def buy():
 
             # Redirect user to home page, after transacted
             return redirect("/")
-            #return hello("Brought! ", f"Now tCost {usd(tCost)}" ) # redirect("/")  ##### TEST
+            # return hello("Brought! ", f"Now tCost {usd(tCost)}" ) # redirect("/")  ##### TEST
         else:
             # if user cannot afford
             return apology("can't afford", 400)
@@ -195,13 +200,15 @@ def check():
     else:
         return jsonify("false")
 
+    # test by http ...  /check?username=JJLin
+
 
 @app.route("/chgPwd", methods=["GET", "POST"])
 @login_required
 def chgPwd():
     """ 20191222 Change Password """
 
-    userID=session["user_id"]
+    userID = session["user_id"]
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
@@ -231,8 +238,9 @@ def chgPwd():
 
         # update new hash into database
         result = db.execute("UPDATE users SET hash = :newHash WHERE rowid = :userID",
-            newHash=newHash, userID=userID)
-        if not result: return apology("new  pasword error", 400)
+                            newHash=newHash, userID=userID)
+        if not result:
+            return apology("new  pasword error", 400)
 
         # Redirect user to home page
         return redirect("/")
@@ -240,7 +248,8 @@ def chgPwd():
     # to place username to html, so as Google will not store wrong username
     # work only outside the above 'if' loop
     rows = db.execute("SELECT username FROM users WHERE ID = :userID", userID=userID)
-    for row in rows: username = row["username"]
+    for row in rows:
+        username = row["username"]
 
     return render_template("chgPwd.html", username=username)
 
@@ -248,7 +257,7 @@ def chgPwd():
 @app.route("/history")
 @login_required
 def history():
-    """Show history of transactions""" # return apology("TODO")
+    """Show history of transactions"""  # return apology("TODO")
 
     # call history LIST
     rows = db.execute("SELECT * FROM history WHERE userID= :userID", userID=session["user_id"])
@@ -256,8 +265,8 @@ def history():
     for row in rows:
         row["price"] = usd(row["price"])    # convert integer to string with unit
 
-    return render_template("history.html", rows=rows )
-    #return render_template("hello.html", name=str(rows) )  ##### TEST - use str
+    return render_template("history.html", rows=rows)
+    # return render_template("hello.html", name=str(rows) )  ##### TEST - use str
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -331,7 +340,7 @@ def quote():
             return apology("invalid symbol", 400)
 
         # redirect to quoteD page, usd() from hellpers.py
-        pp=usd(quote["price"])
+        pp = usd(quote["price"])
         return render_template("quoted.html", name=quote["name"], symbol=quote["symbol"], price=pp)
 
         # return hello(rJson, Symbol)       ##### TEST
@@ -369,7 +378,7 @@ def register():
 
         # insert username and hash into database
         result = db.execute("INSERT INTO users (username, hash) VALUES(:username, :hash)",
-            username=request.form.get("username"), hash=hash)
+                            username=request.form.get("username"), hash=hash)
         if not result:
             return apology("username unavailable", 400)
 
@@ -390,7 +399,7 @@ def register():
 @app.route("/sell", methods=["GET", "POST"])
 @login_required
 def sell():
-    """Sell shares of stock""" # was return apology("TODO")
+    """Sell shares of stock"""  # was return apology("TODO")
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
@@ -419,11 +428,11 @@ def sell():
         # lookup() from helpers.py
         quote = lookup(symbol)
 
-        userID=session["user_id"]
+        userID = session["user_id"]
 
         # recall existing stockID, and shares from stock
         rows = db.execute("SELECT * FROM stock WHERE symbol = :symbol AND userID = :userID",
-            symbol=symbol, userID=userID)
+                          symbol=symbol, userID=userID)
         for row in rows:
             stockShares = row["shares"]
             stockID = row["stockID"]
@@ -435,22 +444,22 @@ def sell():
             stockShares -= getShares    # now shares from stock less input
             # eg. UPDATE stock SET shares = 80 WHERE stockID = 10;
             result = db.execute("UPDATE stock SET shares = :stockShares WHERE stockID = :stockID",
-                stockShares=stockShares, stockID=stockID)
+                                stockShares=stockShares, stockID=stockID)
         else:   # getShares == stockShares
             # eg. DELETE FROM stock WHERE stockID = 13
             result = db.execute("DELETE FROM stock WHERE stockID = :stockID", stockID=stockID)
 
         # total sell price
-        tSell=getShares*quote["price"]
+        tSell = getShares*quote["price"]
 
         # update users cash. eg. UPDATE users SET cash = cash + 1000 WHERE id = 6;
         result = db.execute("UPDATE users SET cash = cash + :tSell WHERE id = :userID",
-            tSell=tSell, userID=userID)
+                            tSell=tSell, userID=userID)
 
         # update transaction history
         # eg. INSERT INTO history (stockID, shares, price) VALUES(2, -1, 100)
         result = db.execute("INSERT INTO history (userID, symbol, shares, price) VALUES(:userID, :symbol, :shares, :tSell)",
-                userID=userID, symbol=symbol, shares=-getShares, tSell=tSell)
+                            userID=userID, symbol=symbol, shares=-getShares, tSell=tSell)
 
         # Message Flashing, get_flashed_messages() from layout.html
         # https://flask.palletsprojects.com/en/1.1.x/patterns/flashing/
@@ -462,10 +471,10 @@ def sell():
     # for template sell.html
     # call stocks LIST, sorted, ORDER BY symbol
     stocks = db.execute("SELECT symbol FROM stock WHERE userID= :userID AND shares !=0 ORDER By symbol",
-        userID=session["user_id"])
+                        userID=session["user_id"])
 
     return render_template("sell.html", stocks=stocks)
-    #return hello(symbol, f": JSON: {str(rows)}! shares: {type(shares)}." )  ##### TEST
+    # return hello(symbol, f": JSON: {str(rows)}! shares: {type(shares)}." )  ##### TEST
 
 
 def errorhandler(e):
@@ -491,7 +500,7 @@ def hello(Name="Hello, ", Text="!"):
     """
 
 
-""" Database name: finance
+""" Database name: finance.db
 CREATE TABLE 'users' (
     'id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     'username' TEXT NOT NULL,
